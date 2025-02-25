@@ -1,17 +1,18 @@
 
 const userModel = require('../model/userModel')
-
+const adminModel = require('../model/adminModel');
 const sendMail = require('../helper/email');
+const secret_key = process.env.secret_key;
 const jwt = require('jsonwebtoken');
 const signUp = require('../helper/signup');
 const bcrypt = require('bcryptjs');
 
-exports.createuser = async (req, res)=>{
+exports.createUser = async (req, res)=>{
     try {
         
-        const {firstName, lastname, password, country, address,town,postcode,phone,email } =req.body
+        const {firstname, lastname, password, country, address, town, postcode, phone, email } =req.body
 
-        if(!firstName || !lastname || !country || !email || !phone || !address ||!town || !postcode || !phone){
+        if(!firstname || !lastname || !country || !email || !phone || !address ||!town || !postcode || !phone){
             return res.status(400).json({
                 message: "All fields are required"
             })
@@ -20,7 +21,7 @@ exports.createuser = async (req, res)=>{
         const checkUser = await userModel.findOne({email: email.toLowerCase()})
         if(checkUser){
             return res.status(400).json({
-                message: "user with this email Exists"
+                message: "User with this email already exists"
             })
         }
         
@@ -28,24 +29,31 @@ exports.createuser = async (req, res)=>{
         const hash = await bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 
 
-
         const data = {
-            firstName, lastname, password:hash, country, address,town,postcode,phone,email:email.toLowerCase()
+            firstname, 
+            lastname, 
+            password: hash, 
+            country, 
+            address,
+            town,
+            postcode,
+            phone,
+            email:email.toLowerCase()
         }
     
 
         const newData = await userModel.create(data);
 
         //The word "secret_key" is self-defined, actually hidden in the .env file
-        const token = await jwt.sign({id:newData._id}, process.env.secret, {expiresIn: '30m'})
+        const token = await jwt.sign({id:newData._id}, secret_key, {expiresIn: '30m'})
         // console.log(token)
         const link = `${req.protocol}://${req.get('host')}/mail/${newData._id}/${token}`
         //console.log(link)
-        const subject = "Welcome" + " " + fullName;
-        const text = `Welcome ${newData.fullName}, Kindly use this link to verify your email ${link}`;
-        await sendMail({ subject: subject, email: newData.email, html:signUp(link, newData.fullName) })
+        const subject = "Welcome" + " " + firstname;
+        const text = `Welcome ${newData.firstname}, Kindly use this link to verify your email ${link}`;
+        await sendMail({ subject: subject, email: newData.email, html:signUp(link, newData.firstname) })
             return res.status(201).json({
-            message: "New Student Created Successfully",
+            message: "New User Created Successfully",
             data: newData
         })
 
@@ -61,30 +69,35 @@ exports.createuser = async (req, res)=>{
 exports.createAdmin = async (req, res)=>{
     try {
         // console.log(req);
-        const {fullName, password, email, phoneNumber, } =req.body
+        const {fullname, password, email, phoneNumber } =req.body
 
-
+        if(!fullname || !password || !email || !phoneNumber){   
+            return res.status(400).json({
+                message: "All fields are required"
+            })
+        }
 
         const hash = await bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 
 // Store hash in your password DB.
         const data = {
-            fullName,
+            fullname,
             password: hash,
             email: email.toLowerCase(), 
             phoneNumber
         }
         
-        const newData = await userModel.create(data);
+        const newData = await adminModel.create(data);
 
         if(newData.isAdmin == true){
             return res.status(400).json({message: "Already An Admin"})
            }
 
            await newData.updateOne({ isAdmin: true });
+        //    await newData.updateOne({ isVerified: true });
 
         //The word "secret_key" is self-defined, actually hidden in the .env file
-        const token = await jwt.sign({id:newData._id}, process.env.secret, {expiresIn: '15mins'})
+        const token = await jwt.sign({id:newData._id}, secret_key, {expiresIn: '30m'})
      return res.status(201).json({
             message: "New Admin Created Successfully",
             data: newData
@@ -96,13 +109,14 @@ exports.createAdmin = async (req, res)=>{
      })   
     }
 }
+
 exports.userLogin = async (req, res) => {
     try {
         const { email, passWord } = req.body;
         let user;
         let userRole;
 
-        if (await userModel.findOne({ email: email.toLowerCase() })) {
+        if (await adminModel.findOne({ email: email.toLowerCase() })) {
             user = await adminModel.findOne({ email: email.toLowerCase() });
             userRole = 'Admin';
       
@@ -157,15 +171,13 @@ exports.verifyMail = async (req, res) => {
         let user;
         let userRole;
 
-        console.log(user);
-
         // const checkuser = await schoolModel.findById( id )
-        if(await userModel.findById(id)){
-            user = await userModel.findById(id);
+        if(await adminModel.findById(id)){
+            user = await adminModel.findById(id);
             userRole = 'Admin';
         } else if(await userModel.findById(id)){
             user = await userModel.findById(id);
-            userRole = 'user';
+            userRole = 'User';
         }
 
        if(user.isVerified == true){
@@ -183,13 +195,15 @@ exports.verifyMail = async (req, res) => {
     }
 
     if(userRole == 'Admin' && user.isAdmin == true){
-        await user.updateOne({ isAdmin: true });
+        await user.updateOne({ isVerified: true });
+       }
+       else if(userRole == 'User' && user.isAdmin == false){
         await user.updateOne({ isVerified: true });
        }
 
     
         res.status(200).json({
-            message: `${userRole} email verified successfully as an Admin`
+            message: `Email verified successfully as ${userRole}`
         })
     }catch(error){
         console.error(error.message);

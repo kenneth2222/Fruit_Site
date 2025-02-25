@@ -1,94 +1,106 @@
-const html=(verifyLink,firstName)=>{
+const html = (verifyLink, firstName) => {
     return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cohort 5 Class </title>
+        <title>Welcome to AiEngineer Podcast</title>
         <style>
             body {
-                font-family: Arial, sans-serif;
-                line-height: 1.6;
-                color: #333333;
-                background-color: #2c2c2c; /* Dark background */
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f3f4f6;
                 margin: 0;
                 padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                line-height: 1.6;
+                color: #333;
             }
             .container {
-                width: 80%;
-                margin: 20px auto;
-                padding: 20px;
-                border: 1px solid #ddd;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                background-color: #f4f4f4; /* Light grey background */
+                width: 100%;
+                max-width: 600px;
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                margin: 20px;
             }
             .header {
-                background: #333333;
-                padding: 20px;
+                background: linear-gradient(135deg, #6a11cb, #2575fc);
+                color: white;
+                padding: 30px 20px;
                 text-align: center;
-                border-bottom: 1px solid #ddd;
-                color: #ffffff;
-                border-radius: 10px 10px 0 0;
+            }
+            .header h1 {
+                margin: 0;
+                font-size: 2rem;
+                animation: fadeIn 1s ease-out;
+            }
+            @keyframes fadeIn {
+                0% { opacity: 0; transform: translateY(-10px); }
+                100% { opacity: 1; transform: translateY(0); }
             }
             .content {
                 padding: 20px;
-                color: #333333;
+                color: #4a4a4a;
+                font-size: 1rem;
+            }
+            .content p {
+                margin: 10px 0;
             }
             .button-container {
                 text-align: center;
-                margin: 20px 0;
+                margin: 30px 0;
             }
             .button {
                 display: inline-block;
-                background-color: #28a745; /* Green background */
-                color: #ffffff;
-                padding: 15px 30px;
-                font-size: 18px;
+                padding: 14px 28px;
+                font-size: 1.1rem;
+                color: white;
+                background-color: #2575fc;
+                border-radius: 8px;
                 text-decoration: none;
-                border-radius: 5px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                transition: background-color 0.3s ease;
+                transition: all 0.3s ease;
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
             }
             .button:hover {
-                background-color: #218838;
+                background-color: #6a11cb;
+                transform: translateY(-3px);
+                box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
             }
             .footer {
-                background: #333333;
-                padding: 10px;
+                background: #f1f1f1;
+                padding: 15px;
                 text-align: center;
-                border-top: 1px solid #ddd;
-                font-size: 0.9em;
-                color: #cccccc;
-                border-radius: 0 0 10px 10px;
+                font-size: 0.9rem;
+                color: #777;
             }
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>WELCOME ON BOARD!</h1>
+                <h1>Welcome Aboard, ${firstName}!</h1>
             </div>
             <div class="content">
-                <p>Hello ${firstName},</p>
-                <p>Thank you for signing up to AiEngineer Podcast. We are excited to have you on this platform.</p>
-                <p>Please click the button below to verify your account:</p>
+                <p>Thank you for signing up for the <strong>AiEngineer Podcast</strong>. We're thrilled to have you on board!</p>
+                <p>To get started, please verify your account by clicking the button below:</p>
                 <div class="button-container">
                     <a href="${verifyLink}" class="button">Verify My Account</a>
                 </div>
-                <p>If you did not sign up on our platform, kindly ignore this email.</p>
-                <p>Best regards,<br>AiEngineer</p>
+                <p>If you did not sign up, please ignore this email.</p>
+                <p>Cheers,<br>The AiEngineer Team</p>
             </div>
             <div class="footer">
-                <p>&copy; ${new Date().getFullYear()} . All rights reserved.</p>
-            </div>  
+                &copy; ${new Date().getFullYear()} AiEngineer. All rights reserved.
+            </div>
         </div>
     </body>
     </html>
-    
-  
-    `
-}
+    `;
+};
 
-module.exports=html
+module.exports = html;
