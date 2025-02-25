@@ -172,14 +172,7 @@ exports.verifyMail = async (req, res) => {
         return res.status(400).json({message: "Email already been verified"})
        }
 
-       //With this method, The verification status might get updated even if the token is invalid or expired, leading to security risks.
-    //  await jwt.verify(token, secret_key, (error)=>{
-    //     if(error){
-    //         return res.status(404).json({
-    //             message: "Email Link Has Expired"
-    //         })   
-    //     }
-    //  } )
+       
 
      try {
         await jwt.verify(token, secret_key);
@@ -194,8 +187,7 @@ exports.verifyMail = async (req, res) => {
         await user.updateOne({ isVerified: true });
        }
 
-    //  await user.updateOne({ isVerified: true });
-        // const verifyingMail = await user.findByIdAndUpdate(id, {isVerified:true})
+    
         res.status(200).json({
             message: `${userRole} email verified successfully as an Admin`
         })
