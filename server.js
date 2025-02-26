@@ -2,7 +2,7 @@ const express = require('express');
 require("dotenv").config();
 const DATABASE_URL = process.env.DATABASE_URL;
 const mongoose = require ('mongoose');
-const userRouter = require('./router/userRouter')
+const userRouter = require('./routes/userRouter')
 // const productRouter = require('./router/productRouter')
 // const multer = require ('multer')
 
