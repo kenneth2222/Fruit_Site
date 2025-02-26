@@ -7,4 +7,4 @@ userRouter.post('/mail/:id/:token', createUser)
 userRouter.post('/mail/:id/:token', createAdmin)
 userRouter.post('/mail/:id/:token', userLogin)
 
-module.exports = router
+module.exports = userRouter
