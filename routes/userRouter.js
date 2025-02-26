@@ -10,4 +10,6 @@ userRouter.post('/change/:id',changePassword)
 userRouter.post('/forget',forgotPassword)
 userRouter.post('/reset-password/:id/:token',resetPassword)
 
+
 module.exports = userRouter
+
