@@ -31,14 +31,41 @@ const productSchema = new mongoose.Schema({
         min: [0, 'Stock cannot be negative'],
         default: 0
     },
-    images: [{
+    shortDescription: {
         type: String,
-        validate: {
-            //This ensures that the images property is an array of strings
-            validator: (v) => Array.isArray(v) && v.every(url => typeof url === 'string'),
-            message: 'Images must be an array of strings'
-        }
-    }],
+        required: [true, 'Short description is required'],
+        minlength: [10, 'Short description must be at least 10 characters long'],
+        maxlength: [100, 'Short description must not exceed 100 characters'],
+        trim: true
+    },
+    fullDescription: {
+        type: String,
+        required: [true, 'Long description is required'],
+        minlength: [10, 'Long description must be at least 10 characters long'],
+        maxlength: [1000, 'Long description must not exceed 1000 characters'],
+        trim: true
+    },
+    sku: {
+        type: String,
+        required: [true, 'Product SKU is required'],
+        unique: true,
+        trim: true
+    },
+    // images: [{
+    //     type: String,
+    //     validate: {
+    //         //This ensures that the images property is an array of strings
+    //         // validator: (v) => Array.isArray(v) && v.every(url => typeof url === 'string'),
+    //         message: 'Images must be an array of strings'
+    //     }
+    // }],
+    image: { type: String, 
+        required: true
+        // validate: {
+        // validator: (value) => typeof value === 'string',
+        // message: 'Image must be a valid URL as a string'
+    },
+    
     isFeatured: {
         type: Boolean,
         default: false
@@ -56,13 +83,13 @@ const productSchema = new mongoose.Schema({
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user',
-        required: true
+        // required: true
     },
     dateCreated: {
         type: Date,
         default: () => new Date().toISOString()
     }
-});
+},{ timestamps: true });//This adds createdAt and updatedAt fields to the schema
 
 const productModel = mongoose.model('Product', productSchema);
 module.exports = productModel;

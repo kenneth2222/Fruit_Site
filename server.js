@@ -3,14 +3,14 @@ require("dotenv").config();
 const DATABASE_URL = process.env.DATABASE_URL;
 const mongoose = require ('mongoose');
 const userRouter = require('./routes/userRouter')
-// const productRouter = require('./router/productRouter')
+const productRouter = require('./routes/productRouter')
 // const multer = require ('multer')
 
 
 const app = express()
 app.use(express.json())
 app.use(userRouter)
-// app.use(productRouter)
+app.use(productRouter)
 app.use((err,req,res,next)=>{
 if (err)
     return res.status(400).json({message:err.message})
