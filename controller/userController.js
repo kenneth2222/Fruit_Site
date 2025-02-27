@@ -77,6 +77,14 @@ exports.createAdmin = async (req, res)=>{
             })
         }
 
+        const checkEmail = await adminModel.findOne({email:email.toLowerCase()})
+        if(checkEmail){
+            return res.status(400).json({
+                message: "Email already exist"
+            })
+        }
+
+
         const hash = await bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 
 // Store hash in your password DB.
@@ -96,8 +104,27 @@ exports.createAdmin = async (req, res)=>{
            await newData.updateOne({ isAdmin: true });
         //    await newData.updateOne({ isVerified: true });
 
+        const token = await jwt.sign({id:newData._id}, secret_key, {expiresIn: '24hrs'})
+
+        // try{
+        //     const token = await jwt.sign({id:newData._id}, secret_key, {expiresIn: '30m'})
+          
+        //     if(!token){
+        //         const delData = await newData.findByIdAndDelete(newData._id)
+        //         return res.status(400).json({message: "Deleted",
+        //             data: delData
+        //         })
+        //        }
+        // }
+        // catch(error){
+        //     res.status(500).json({
+        //         message: error.message
+        //      })   
+        // }
         //The word "secret_key" is self-defined, actually hidden in the .env file
-        const token = await jwt.sign({id:newData._id}, secret_key, {expiresIn: '30m'})
+       
+
+
      return res.status(201).json({
             message: "New Admin Created Successfully",
             data: newData
@@ -210,6 +237,161 @@ exports.verifyMail = async (req, res) => {
         res.status(500).json({
             message: "Internal Server Error: " + error.message
         });
+    }
+}
+exports.changePassword = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        const {id} = req.params;
+        const user = await userModel.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "user not found" });
+        }
+
+        // Compare old password
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Incorrect password" });
+        }
+
+        // Hash new password and update
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+}
+};
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        // const{id} = req.params
+        const { email,newPassword } = req.body;
+        const user = await userModel.findOne({ email: email.toLowerCase() });
+
+        if (!user) {
+            return res.status(404).json({ message: "Email not found" });
+        }
+
+        // Create reset token
+        const token = jwt.sign({ id: user._id }, secret_key, { expiresIn: "25m" });
+
+        // Send reset link via email
+        const link = `${req.protocol}://${req.get("host")}/reset-password/${user._id}/${token}`;
+        const text = `Hello ${user.firstname},kindly use this link to reset your password ${link}`
+        await sendMail({
+            subject: "Password Reset Request"+" "+ user.firstname,
+            email: user.email,
+            text
+            //  html:signup(link, school.fullName) 
+        });
+        res.status(200).json({ message: "Password reset link sent to email" });
+        
+        
+        // Hash new password and update
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await school.save();
+       return res.status(200).json({ message: "Password changed successfully" });
+
+       
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+}
+};
+exports.resetPassword = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { newPassword } = req.body;
+
+        
+        const checkuser = await userModel.findById( id )
+    
+        if (!checkuser) {
+            return res.status(404).json({ message: "Invalid or expired token" });
+        }
+// Verify token
+        await jwt.verify(req.params.token, secret_key, (error)=>{
+            
+            if(error){
+                return res.status(404).json({
+                    message: "Email Link Has Expired"
+                })   
+            }
+         } )
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        checkuser.password = await bcrypt.hash(newPassword, salt);
+        await checkuser.save();
+
+        res.status(200).json({ message: "Password reset successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+}
+};
+
+exports.getALLUser = async (req,res)=>{
+    try {
+        const checkerUser = await userModel.find()
+        if(!checkerUser){
+            return res.status(404).json({massage:'users not found'})
+    }
+    res.status(200).json({message:'users successfully found',
+        data: checkerUser
+    })
+        
+    } catch (error) {
+        res.status(500).json({message:eroor.message})
+        
+    }
+} 
+exports.getOneUser = async (req,res)=>{
+     try {
+        const {id} = req.params
+        const findUser = await userModel.findById(id)
+        if(!findUser){
+            return res.status(404).json({message:'user is not found '})
+        }
+        res.status(200).json({massage:"user found ",
+            data:findUser
+        })
+     } catch (error) {
+        res,status(500).json({massage:error.message})
+        
+     }
+}
+exports.updateUser = async (req,res)=>{
+    try {
+        const {id} = req.params
+        const updateUser = await userModel.findByIdAndUpdate(id)
+        if(!updateUser){
+            return res.status(404).json({message:'user not found in the database try again'})
+        }
+        res.status(200).json({massage:"user found in the database and updated succesfully",
+            data:updateUser
+        })
+        
+    } catch (error) {
+        res.status(500).json({message:error.message})
+    }
+}
+exports.delete = async (req,res)=>{
+    try {
+        const {id} = req.params
+        const deleteUser = await userModel.findByIdAndDelete(id)
+        if(!deleteUser){
+            return res.status(404).json({message:'user not found in the database try again'})
+        }
+        res.status(200).json({massage:"user found in the database and deleted succesfully",
+            data:deleteUser
+        })
+        
+    } catch (error) {
+        res.status(500).json({message:error.message})
+        
     }
 }
 
