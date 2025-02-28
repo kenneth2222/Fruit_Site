@@ -38,7 +38,8 @@ exports.createUser = async (req, res)=>{
             town,
             postcode,
             phone,
-            email:email.toLowerCase()
+            email:email.toLowerCase(),
+            isAdmin: req.body.isAdmin || false // Add this line
         }
     
 

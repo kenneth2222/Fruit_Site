@@ -24,9 +24,10 @@ const adminSchema = new mongoose.Schema({
         type: Boolean,
         default:false
     },
+    
     isAdmin:{
-        type:Boolean,
-        dwfault:false
+        type: Boolean,
+        default: false
 
     },
 
