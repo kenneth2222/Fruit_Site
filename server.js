@@ -3,11 +3,13 @@ require("dotenv").config();
 const DATABASE_URL = process.env.DATABASE_URL;
 const mongoose = require ('mongoose');
 const userRouter = require('./routes/userRouter')
-const productRouter = require('./routes/productRouter')
+const productRouter = require('./routes/productRouter');
+const cors = require("cors");
 // const multer = require ('multer')
 
 
 const app = express()
+app.use(cors({ origin: "*", methods: "GET,HEAD,PUT,PATCH,POST,DELETE" }));
 app.use(express.json())
 app.use(userRouter)
 app.use(productRouter)
