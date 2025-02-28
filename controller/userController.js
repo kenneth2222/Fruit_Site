@@ -167,7 +167,7 @@ exports.userLogin = async (req, res) => {
             });
         }
 
-        che
+        
         if (!user.isVerified) {
             return res.status(403).json({
                 message: "Email not Verified"
