@@ -9,7 +9,7 @@ userRouter.post('/admin', createAdmin)
 userRouter.post('/login', userLogin)
 userRouter.post('/change/:id',changePassword)
 userRouter.post('/forget',forgotPassword)
-userRouter.post('/reset-password/:id/:token',resetPassword)
+userRouter.post('/reset-password/:id/:token', resetPassword)
 
 
 module.exports = userRouter
